@@ -16,10 +16,50 @@ HARDCODED_REFERENCE_RANGES = {
 }
 
 def reference_range_lookup(test_name: str):
-    """Optional tool to lookup reference ranges if missing."""
-    # In a real app, this could query a database or external API.
-    # We will simulate it using the hardcoded dict.
-    return HARDCODED_REFERENCE_RANGES.get(test_name)
+    """Optional tool to lookup reference ranges if missing using LLM."""
+    # First check hardcoded dictionary
+    if test_name in HARDCODED_REFERENCE_RANGES:
+        return HARDCODED_REFERENCE_RANGES[test_name]
+    
+    # If not in hardcoded dict, use LLM to estimate the reference range
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    if not api_key or api_key == "your_openrouter_api_key_here":
+        return None
+
+    client = OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=api_key,
+    )
+
+    prompt = f"""You are a clinical reference lookup tool. 
+Provide the standard adult reference range for the lab test: "{test_name}".
+Respond ONLY with a JSON object in this exact schema:
+{{
+  "min": float,
+  "max": float,
+  "unit": "string"
+}}
+If you do not know or it varies too wildly without context, return an empty object {{}}.
+"""
+    try:
+        response = client.chat.completions.create(
+            model="google/gemini-2.5-flash",
+            messages=[{"role": "user", "content": prompt}],
+            response_format={"type": "json_object"},
+            max_tokens=200
+        )
+        
+        data = json.loads(response.choices[0].message.content)
+        if "min" in data and "max" in data:
+            return {
+                "min": float(data["min"]),
+                "max": float(data["max"]),
+                "unit": data.get("unit", "")
+            }
+    except Exception as e:
+        print(f"Reference range lookup failed for {test_name}: {e}")
+        
+    return None
 
 def classify_result(result: LabResultInput) -> str:
     """Classify the lab result into Normal, Warning, or Critical."""
