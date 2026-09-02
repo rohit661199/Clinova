@@ -119,7 +119,6 @@ def explain_results(results: list[AnalyzedResult]):
     """Call LLM to generate clinical explanation and next steps."""
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key or api_key == "your_openrouter_api_key_here":
-        # Fallback if no API key is provided for some reason
         for res in results:
             res.Explanation = f"Result is {res.Severity} based on reference ranges."
             res.Suggested_Next_Steps = "Consult your doctor."
@@ -130,44 +129,47 @@ def explain_results(results: list[AnalyzedResult]):
         api_key=api_key,
     )
     
-    # We will batch explain them to save API calls
-    prompt = "You are a clinical AI assistant. Explain the following lab results based on the principles of Explainable AI. Users should understand WHY a result was flagged and what it means (not just 'abnormal'). Also suggest actionable next steps.\n\n"
+    # Process in batches to avoid token limit / truncated JSON issues
+    BATCH_SIZE = 10
     
-    for i, res in enumerate(results):
-        prompt += f"Test {i+1}:\n- Name: {res.Test_Name}\n- Value: {res.Result} {res.Unit}\n- Ref Range: {res.Reference_Range}\n- Severity: {res.Severity}\n\n"
-    
-    prompt += """
+    for i in range(0, len(results), BATCH_SIZE):
+        batch = results[i:i + BATCH_SIZE]
+        
+        prompt = "You are a clinical AI assistant. Explain the following lab results based on the principles of Explainable AI. Users should understand WHY a result was flagged and what it means (not just 'abnormal'). Also suggest actionable next steps.\n\n"
+        
+        for j, res in enumerate(batch):
+            prompt += f"Test {j+1}:\n- Name: {res.Test_Name}\n- Value: {res.Result} {res.Unit}\n- Ref Range: {res.Reference_Range}\n- Severity: {res.Severity}\n\n"
+        
+        prompt += """
 Respond ONLY with a valid JSON object containing a single key "explanations" which maps to an array of objects, one for each test in the exact order provided. Each object must have this schema:
 {
   "Explanation": "string (clinically relevant language, explainable AI focus)",
   "Suggested_Next_Steps": "string (actionable next steps)"
 }
-    """
-    
-    try:
-        response = client.chat.completions.create(
-            model="google/gemini-2.5-flash", # Using Gemini 2.5 Flash via OpenRouter
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
-            response_format={"type": "json_object"},
-            max_tokens=1500
-        )
+        """
         
-        response_text = response.choices[0].message.content
-        data = json.loads(response_text)
-        explanation_data = data.get("explanations", [])
-        
-        for i, res in enumerate(results):
-            if i < len(explanation_data):
-                res.Explanation = explanation_data[i].get("Explanation", "Could not generate explanation.")
-                res.Suggested_Next_Steps = explanation_data[i].get("Suggested_Next_Steps", "Consult your doctor.")
-                
-    except Exception as e:
-        print(f"LLM Explanation failed: {e}")
-        for res in results:
-            res.Explanation = f"Result is {res.Severity}. (LLM explanation failed)"
-            res.Suggested_Next_Steps = "Consult your healthcare provider."
+        try:
+            response = client.chat.completions.create(
+                model="google/gemini-2.5-flash",
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
+                max_tokens=1500
+            )
+            
+            response_text = response.choices[0].message.content
+            data = json.loads(response_text)
+            explanation_data = data.get("explanations", [])
+            
+            for j, res in enumerate(batch):
+                if j < len(explanation_data):
+                    res.Explanation = explanation_data[j].get("Explanation", "Could not generate explanation.")
+                    res.Suggested_Next_Steps = explanation_data[j].get("Suggested_Next_Steps", "Consult your doctor.")
+                    
+        except Exception as e:
+            print(f"LLM Explanation failed for batch starting at {i}: {e}")
+            for res in batch:
+                res.Explanation = f"Result is {res.Severity}. (LLM explanation failed)"
+                res.Suggested_Next_Steps = "Consult your healthcare provider."
             
     return results
 
