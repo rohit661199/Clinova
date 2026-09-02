@@ -1,7 +1,7 @@
 import os
 import json
 from dotenv import load_dotenv
-from google import genai
+from openai import OpenAI
 from pydantic import BaseModel
 from models import LabResultInput, AnalyzedResult
 
@@ -77,15 +77,18 @@ def route_results(analyzed_results: list[AnalyzedResult]) -> list[AnalyzedResult
 
 def explain_results(results: list[AnalyzedResult]):
     """Call LLM to generate clinical explanation and next steps."""
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key or api_key == "your_api_key_here":
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    if not api_key or api_key == "your_openrouter_api_key_here":
         # Fallback if no API key is provided for some reason
         for res in results:
             res.Explanation = f"Result is {res.Severity} based on reference ranges."
             res.Suggested_Next_Steps = "Consult your doctor."
         return results
 
-    client = genai.Client(api_key=api_key)
+    client = OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=api_key,
+    )
     
     # We will batch explain them to save API calls
     prompt = "You are a clinical AI assistant. Explain the following lab results based on the principles of Explainable AI. Users should understand WHY a result was flagged and what it means (not just 'abnormal'). Also suggest actionable next steps.\n\n"
@@ -94,7 +97,7 @@ def explain_results(results: list[AnalyzedResult]):
         prompt += f"Test {i+1}:\n- Name: {res.Test_Name}\n- Value: {res.Result} {res.Unit}\n- Ref Range: {res.Reference_Range}\n- Severity: {res.Severity}\n\n"
     
     prompt += """
-Respond with a JSON array of objects, one for each test in the exact order provided. Each object must have this schema:
+Respond ONLY with a valid JSON object containing a single key "explanations" which maps to an array of objects, one for each test in the exact order provided. Each object must have this schema:
 {
   "Explanation": "string (clinically relevant language, explainable AI focus)",
   "Suggested_Next_Steps": "string (actionable next steps)"
@@ -102,15 +105,17 @@ Respond with a JSON array of objects, one for each test in the exact order provi
     """
     
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-            config={
-                "response_mime_type": "application/json",
-            }
+        response = client.chat.completions.create(
+            model="google/gemini-2.5-flash", # Using Gemini 2.5 Flash via OpenRouter
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"}
         )
         
-        explanation_data = json.loads(response.text)
+        response_text = response.choices[0].message.content
+        data = json.loads(response_text)
+        explanation_data = data.get("explanations", [])
         
         for i, res in enumerate(results):
             if i < len(explanation_data):
