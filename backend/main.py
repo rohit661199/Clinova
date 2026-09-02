@@ -21,7 +21,7 @@ async def analyze_labs_endpoint(request: LabAnalysisRequest):
         raise HTTPException(status_code=400, detail="No lab results provided.")
         
     try:
-        analyzed_results = process_labs(request.results)
+        analyzed_results = await process_labs(request.results)
         return LabAnalysisResponse(analyzed_results=analyzed_results)
     except Exception as e:
         print(f"Error during analysis: {e}")
