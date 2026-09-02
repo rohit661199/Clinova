@@ -95,6 +95,16 @@ async def explain_results(results: list[AnalyzedResult]):
         
         try:
             response_str = await call_mcp_tool("explain_results_batch", {"results_json": json.dumps(batch_dicts)})
+            
+            response_str = response_str.strip()
+            if response_str.startswith("```json"):
+                response_str = response_str[7:]
+            elif response_str.startswith("```"):
+                response_str = response_str[3:]
+            if response_str.endswith("```"):
+                response_str = response_str[:-3]
+            response_str = response_str.strip()
+            
             data = json.loads(response_str)
             
             if "error" in data:

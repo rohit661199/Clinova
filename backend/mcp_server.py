@@ -42,10 +42,9 @@ Respond ONLY with a JSON object in this exact schema:
 If you do not know or it varies too wildly without context, return an empty object {{}}."""
     try:
         response = client.chat.completions.create(
-            model="google/gemini-2.5-flash",
+            model="nvidia/nemotron-3.5-lightning:free",
             messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
-            max_tokens=200
+            response_format={"type": "json_object"}
         )
         return response.choices[0].message.content
     except Exception as e:
@@ -86,7 +85,7 @@ Respond ONLY with a valid JSON object containing a single key "explanations" whi
     
     try:
         response = client.chat.completions.create(
-            model="google/gemini-2.5-flash",
+            model="nvidia/nemotron-3.5-lightning:free",
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"}
         )
