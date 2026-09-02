@@ -110,7 +110,8 @@ Respond ONLY with a valid JSON object containing a single key "explanations" whi
             messages=[
                 {"role": "user", "content": prompt}
             ],
-            response_format={"type": "json_object"}
+            response_format={"type": "json_object"},
+            max_tokens=1500
         )
         
         response_text = response.choices[0].message.content

@@ -20,7 +20,8 @@ if __name__ == "__main__":
             model="google/gemini-2.5-flash", # Or any other model available on OpenRouter
             messages=[
                 {"role": "user", "content": "Say hello!"}
-            ]
+            ],
+            max_tokens=200
         )
         print("OpenRouter API Test Successful:", response.choices[0].message.content)
     except Exception as e:
