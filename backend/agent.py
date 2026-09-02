@@ -152,8 +152,7 @@ Respond ONLY with a valid JSON object containing a single key "explanations" whi
             response = client.chat.completions.create(
                 model="google/gemini-2.5-flash",
                 messages=[{"role": "user", "content": prompt}],
-                response_format={"type": "json_object"},
-                max_tokens=1500
+                response_format={"type": "json_object"}
             )
             
             response_text = response.choices[0].message.content
