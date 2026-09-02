@@ -1,0 +1,11 @@
+Date,Test_Name,Result,Unit,Reference_Range,Status,Comment,Min_Reference,Max_Reference,Unit_Description,Recommended_Followup
+2025-08-20,Sodyum,130,mEq/L,136-145,Critical,Hiponatremi,136,145,Miliekivalan/Litre,Acil sıvı dengesi
+2025-08-20,Potasyum,6.5,mEq/L,3.5-5.1,Critical,Hiperkalemi,3.5,5.1,Miliekivalan/Litre,EKG çekilmesi
+2025-08-20,Kreatinin,2.5,mg/dL,0.7-1.2,Critical,Böbrek yetmezliği şüphesi,0.7,1.2,Miligram/Desilitre,Nefroloji konsültasyonu
+2025-08-20,Üre,80,mg/dL,17-43,Critical,Üremi,17,43,Miligram/Desilitre,Böbrek fonksiyon testi
+2025-08-20,AST,120,U/L,0-35,Critical,Karaciğer hasarı,0,35,Ünite/Litre,Karaciğer enzimleri takibi
+2025-08-20,ALT,150,U/L,0-45,Critical,Karaciğer hasarı,0,45,Ünite/Litre,Hepatit belirteçleri
+2025-08-20,GGT,200,U/L,0-55,Critical,Safra yolu tıkanıklığı,0,55,Ünite/Litre,Safra kesesi USG
+2025-08-20,CRP,50,mg/L,0-5,Critical,Ciddi inflamasyon/enfeksiyon,0,5,Miligram/Litre,Enfeksiyon odağı araştırması
+2025-08-20,Demir,30,ug/dL,65-175,Warning,Demir eksikliği,65,175,Mikrogram/Desilitre,Demir bağlama kapasitesi
+2025-08-20,Trigliserid,250,mg/dL,0-150,Warning,Hipertrigliseridemi,0,150,Miligram/Desilitre,Diyet değişikliği

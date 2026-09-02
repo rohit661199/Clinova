@@ -1,0 +1,11 @@
+Date,Test_Name,Result,Unit,Reference_Range,Status,Comment,Min_Reference,Max_Reference,Unit_Description,Recommended_Followup
+2025-08-15,Hemoglobin,10.2,g/dL,12-15,Warning,Hafif anemi bulgusu,12,15,Gram/Desilitre,Demir testi önerilir
+2025-08-15,Glukoz,125,mg/dL,70-100,Warning,Prediyabet riski,70,100,Miligram/Desilitre,HbA1c kontrolü
+2025-08-15,Kolesterol,260,mg/dL,0-200,Critical,Yüksek kolesterol,0,200,Miligram/Desilitre,Kardiyoloji kontrolü
+2025-08-15,TSH,0.1,mIU/L,0.4-4.0,Critical,Hipertiroidi şüphesi,0.4,4.0,MiliIU/Litre,Endokrinoloji uzmanına danışın
+2025-08-15,Kalsiyum,9.5,mg/dL,8.6-10.2,Normal,Normal,8.6,10.2,Miligram/Desilitre,Rutin kontrol
+2025-08-15,Trombosit,120,10^3/uL,150-450,Warning,Trombositopeni,150,450,Bin/µL,Hematoloji takibi
+2025-08-15,Lökosit,12.5,10^3/uL,5-10.6,Warning,Hafif lökositoz,5,10.6,Bin/µL,Enfeksiyon bulgusu olabilir
+2025-08-15,Eritrosit,3.5,10^6/uL,3.8-5.2,Warning,Eritrosit düşük,3.8,5.2,Milyon/µL,Anemi takibi
+2025-08-15,B12 Vitamini,150,pg/mL,200-900,Critical,B12 eksikliği,200,900,Pikogram/Mililitre,Takviye gerekebilir
+2025-08-15,D Vitamini,15,ng/mL,30-100,Critical,Ciddi eksiklik,30,100,Nanogram/Mililitre,Yüksek doz takviye
