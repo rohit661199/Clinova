@@ -19,7 +19,17 @@ const LabInput = ({ onAnalyze, isLoading }) => {
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          onAnalyze(results.data);
+          // Sanitize data: convert empty strings to null/undefined, and parse numbers if needed
+          const sanitizedData = results.data.map(row => {
+            const cleanRow = { ...row };
+            if (cleanRow.Min_Reference === "") cleanRow.Min_Reference = null;
+            if (cleanRow.Max_Reference === "") cleanRow.Max_Reference = null;
+            // Also parse if they are strings
+            if (cleanRow.Min_Reference !== null && cleanRow.Min_Reference !== undefined) cleanRow.Min_Reference = parseFloat(cleanRow.Min_Reference) || null;
+            if (cleanRow.Max_Reference !== null && cleanRow.Max_Reference !== undefined) cleanRow.Max_Reference = parseFloat(cleanRow.Max_Reference) || null;
+            return cleanRow;
+          });
+          onAnalyze(sanitizedData);
         }
       });
     }
